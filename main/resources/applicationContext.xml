@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+    <bean id="xiao" class="net.xiaopang.SpringTest">
+        <property name="name" value="xiao"></property>
+    </bean>
+
+    <bean name="xiao1,pang1" class="net.xiaopang.SpringTest">
+        <property name="name" value="xiao1,pang1"></property>
+    </bean>
+
+    <bean name="pang" class="net.xiaopang.Lombok">
+        <property name="id" value="1"></property>
+        <property name="name" value="lombok"></property>
+        <property name="address" value="yue"></property>
+        <property name="age" value="27"></property>
+    </bean>
+
+    <bean name="pang2" class="net.xiaopang.Lombok">
+        <constructor-arg  value="2"></constructor-arg>
+        <constructor-arg  value="ning" index="2"></constructor-arg>
+        <constructor-arg  value="lombok" index="1"></constructor-arg>
+        <constructor-arg  value="23"></constructor-arg>
+        <constructor-arg ref="course"></constructor-arg>
+        <constructor-arg>
+            <list>
+                <!--外部引用-->
+                <ref bean="course"></ref>
+                <!--内部引用-->
+                <bean class="net.xiaopang.Course">
+                    <constructor-arg value="90"></constructor-arg>
+                    <constructor-arg value="100"></constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+        <constructor-arg name="properties">
+            <props>
+                    <prop key="drive">com.mysql.jdbc.Driver</prop>
+                    <prop key="url">jdbc:mysql://127.0.0.1:3306/db</prop>
+                    <prop key="username">root</prop>
+                    <prop key="paeeword">root</prop>
+            </props>
+        </constructor-arg>
+    </bean>
+
+    <bean id="course" class="net.xiaopang.Course">
+        <constructor-arg value="80"></constructor-arg>
+        <constructor-arg value="90"></constructor-arg>
+    </bean>
+
+    <!--util 命名空间 提升重用性-->
+    <util:list id="utilList">
+        <!--外部引用-->
+        <ref bean="course"></ref>
+        <!--内部引用-->
+        <bean class="net.xiaopang.Course">
+            <constructor-arg value="90"></constructor-arg>
+            <constructor-arg value="100"></constructor-arg>
+        </bean>
+    </util:list>
+
+    <bean id="list" class="net.xiaopang.Lombok">
+        <property name="list" ref="utilList"/>
+    </bean>
+
+    <!--p命名空间 简化属性配置-->
+    <bean id="p" class="net.xiaopang.Lombok" p:id="1" p:age="25" p:address="jian" p:course-ref="course"/>
+
+</beans>
