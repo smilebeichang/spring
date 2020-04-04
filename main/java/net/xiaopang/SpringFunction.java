@@ -27,7 +27,7 @@ public class SpringFunction {
         //lombok
         //Lombok lombok = (Lombok) ctx.getBean("list");
         //p
-        Lombok lombok = (Lombok) ctx.getBean("p");
+        Lombok  lombok = (Lombok) ctx.getBean("p");
         System.out.println(lombok);
     }
 
