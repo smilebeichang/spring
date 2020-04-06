@@ -1,65 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
 
     <bean id="xiao" class="net.xiaopang.SpringTest">
-        <property name="name" value="xiao"></property>
+        <property name="name" value="xiao"/>
     </bean>
 
     <bean name="xiao1,pang1" class="net.xiaopang.SpringTest">
-        <property name="name" value="xiao1,pang1"></property>
+        <property name="name" value="xiao1,pang1"/>
     </bean>
 
     <bean name="pang" class="net.xiaopang.Lombok">
-        <property name="id" value="1"></property>
-        <property name="name" value="lombok"></property>
-        <property name="address" value="yue"></property>
-        <property name="age" value="27"></property>
+        <property name="id" value="1"/>
+        <property name="name" value="lombok"/>
+        <property name="address" value="yue"/>
+        <property name="age" value="27"/>
     </bean>
 
     <bean name="pang2" class="net.xiaopang.Lombok">
-        <constructor-arg  value="2"></constructor-arg>
-        <constructor-arg  value="ning" index="2"></constructor-arg>
-        <constructor-arg  value="lombok" index="1"></constructor-arg>
-        <constructor-arg  value="23"></constructor-arg>
-        <constructor-arg ref="course"></constructor-arg>
+        <constructor-arg value="2"/>
+        <constructor-arg value="ning" index="2"/>
+        <constructor-arg value="lombok" index="1"/>
+        <constructor-arg value="23"/>
+        <constructor-arg ref="course"/>
         <constructor-arg>
             <list>
                 <!--外部引用-->
-                <ref bean="course"></ref>
+                <ref bean="course"/>
                 <!--内部引用-->
                 <bean class="net.xiaopang.Course">
-                    <constructor-arg value="90"></constructor-arg>
-                    <constructor-arg value="100"></constructor-arg>
+                    <constructor-arg value="90"/>
+                    <constructor-arg value="100"/>
                 </bean>
             </list>
         </constructor-arg>
         <constructor-arg name="properties">
             <props>
-                    <prop key="drive">com.mysql.jdbc.Driver</prop>
-                    <prop key="url">jdbc:mysql://127.0.0.1:3306/db</prop>
-                    <prop key="username">root</prop>
-                    <prop key="paeeword">root</prop>
+                <prop key="drive">com.mysql.jdbc.Driver</prop>
+                <prop key="url">jdbc:mysql://127.0.0.1:3306/db</prop>
+                <prop key="username">root</prop>
+                <prop key="paeeword">root</prop>
             </props>
         </constructor-arg>
     </bean>
 
     <bean id="course" class="net.xiaopang.Course">
-        <constructor-arg value="80"></constructor-arg>
-        <constructor-arg value="90"></constructor-arg>
+        <constructor-arg value="80"/>
+        <constructor-arg value="90"/>
     </bean>
 
     <!--util 命名空间 提升重用性-->
     <util:list id="utilList">
         <!--外部引用-->
-        <ref bean="course"></ref>
+        <ref bean="course"/>
         <!--内部引用-->
         <bean class="net.xiaopang.Course">
-            <constructor-arg value="90"></constructor-arg>
-            <constructor-arg value="100"></constructor-arg>
+            <constructor-arg value="90"/>
+            <constructor-arg value="100"/>
         </bean>
     </util:list>
 
@@ -69,5 +70,52 @@
 
     <!--p命名空间 简化属性配置-->
     <bean id="p" class="net.xiaopang.Lombok" p:id="1" p:age="25" p:address="jian" p:course-ref="course"/>
+
+    <!--静态工厂-->
+    <bean id="courseFactory" class="net.xiaopang.factory.StaticFactory" factory-method="getCourse">
+        <constructor-arg value="1"/>
+    </bean>
+
+    <!--实例工厂-->
+    <bean id="IF" class="net.xiaopang.factory.InstanceFactory"/>
+    <bean id="instanceFactory" factory-bean="IF" factory-method="getCourse">
+        <constructor-arg value="3"/>
+    </bean>
+
+    <!--spring自带工厂-->
+    <bean id="springFactory" class="net.xiaopang.factory.SpringFactory">
+        <property name="english" value="50"/>
+        <property name="math" value="50"/>
+    </bean>
+
+    <!--注解-->
+    <bean id="annotation" class="net.xiaopang.service.impl.AnnotionServiceImpl"/>
+
+    <!--配置注解扫描-->
+    <context:component-scan base-package="net.xiaopang"/>
+
+    <!--开启aop注解-->
+    <aop:aspectj-autoproxy/>
+    
+    
+    <!--读取配置文件+配置数据源+配置jdbcTemplate-->
+    <context:property-placeholder location="jdbc.properties"/>
+    <bean id="db" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="db"/>
+    </bean>
+
+    <!--事务-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="db"/>
+    </bean>
+    <!--启用事务-->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
 
 </beans>
